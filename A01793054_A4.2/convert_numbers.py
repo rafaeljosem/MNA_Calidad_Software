@@ -6,6 +6,7 @@ hex and binary
 
 import time
 import sys
+import re
 
 
 def read_file(path: str) -> list:
@@ -13,13 +14,24 @@ def read_file(path: str) -> list:
     Reads the file where the numbers are stored
     '''
     with open(path, encoding='utf8', newline='\n') as f:
-        lines = f.read().splitlines()
+        lines = re.sub(r'[^-0-9A-Za-z.\-\n]', ' ', f.read()).split()
 
     if len(lines) < 1:
         raise ValueError
 
-    lines = [float(n) for n in lines]
+    lines = [int(n) for n in lines if is_number(n)]
     return lines
+
+
+def is_number(s: str) -> bool:
+    '''
+    Checks if a string is a number
+    '''
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def write_results(results: str) -> None:
@@ -31,20 +43,31 @@ def write_results(results: str) -> None:
         f.close()
 
 
-def convert_to_binary(dec_number: int, converted_num: str = '') -> str:
+def convert_to_binary(dec_number: int, converted_num: str = '',
+                      num_bits: int = 10) -> str:
     '''
     Converts a list of decimal numbers to hexadecimal
     '''
     if dec_number == 0:
-        return converted_num[::-1]
+        if converted_num == '':
+            return '0'.zfill(num_bits)
 
-    converted_num += str(int(dec_number % 2))
+        return converted_num[::-1].zfill(num_bits)
+
+    remainder = dec_number % 2
+    converted_num += str(remainder)
+
+    # 2's complement for handling negative numbers
+    if dec_number < 0:
+        dec_number = (dec_number + (1 << num_bits)) // 2
+
     quotient = dec_number // 2
 
-    return convert_to_binary(quotient, converted_num)
+    return convert_to_binary(quotient, converted_num, num_bits)
 
 
-def convert_to_hex(dec_number: int, converted_num: str = '') -> str:
+def convert_to_hex(dec_number: int,
+                   num_bits: int = 32, leading_zero=True) -> str:
     '''
     Converts a list of decimal numbers to hexadecimal
     '''
@@ -58,17 +81,45 @@ def convert_to_hex(dec_number: int, converted_num: str = '') -> str:
         15: 'F',
     }
 
+    # 2's complement for handling negative numbers
+    if dec_number < 0:
+        dec_number = (1 << num_bits) + dec_number
+
     if dec_number == 0:
-        return converted_num[::-1]
+        return '0' if leading_zero else ''
 
-    mod = int(dec_number % 16)
+    remainder = dec_number % 16
+    hex_char = str(remainder) if remainder < 10 else hex_tbl[remainder]
+
     quotient = dec_number // 16
+    return convert_to_hex(quotient, num_bits, False) + hex_char
 
-    if mod > 9:
-        mod = hex_tbl[mod]
 
-    converted_num += str(mod)
-    return convert_to_hex(quotient, converted_num)
+def tabulate_results(columns: list, data: list) -> str:
+    '''
+    Format the results into a table
+    '''
+    # Transpose the data
+    data = list(zip(*data))
+
+    table = ''
+
+    line = "+" + "+".join(["-" * 36 for _ in columns]) + "+"
+    header_line = "+" + "+".join(["=" * 36 for _ in columns]) + "+"
+
+    table += header_line + '\n'
+    table += " " + "|".join(f"{col:^36}" for col in columns) + "|\n"
+
+    table += line + '\n'
+
+    for i, item in enumerate(data):
+        row_data = item if i < len(
+            data) else ["" for _ in range(len(columns))]
+
+        row = "|".join(f"{value:^36}" for value in row_data) + '|\n'
+        table += ' ' + row + line + "\n"
+
+    return table
 
 
 def convert_numbers() -> None:
@@ -77,31 +128,32 @@ def convert_numbers() -> None:
     '''
 
     start_time = time.time()
+    columns = ['Decimal', 'Binary', 'Hex']
+    output = ''
 
-    binary_nums = []
-    hex_nums = []
+    for i in range(1, len(sys.argv)):
 
-    numbers = read_file(sys.argv[1])
+        binary_nums = []
+        hex_nums = []
 
-    for n in numbers:
-        binary_nums.append(convert_to_binary(n))
-        hex_nums.append(convert_to_hex(n))
+        numbers = read_file(sys.argv[i])
+
+        for n in numbers:
+
+            binary_nums.append(convert_to_binary(n))
+            hex_nums.append(convert_to_hex(n))
+
+        output += f'Results for {sys.argv[i]}\n' + tabulate_results(
+            columns, [numbers, binary_nums, hex_nums]) + '\n\n'
 
     end_time = time.time()
 
     elapsed_time = end_time - start_time
 
-    results = f'''
-    Decimal: {numbers}
-    Binario: {binary_nums}
-    Hexadecimal: {hex_nums}
+    output += f'Elased time: {elapsed_time: .2f} seconds'
 
-    Elased time: {elapsed_time: .2f} seconds
-
-    '''
-
-    write_results(results)
-    print(results)
+    write_results(output)
+    print(output)
 
 
 try:
@@ -109,12 +161,9 @@ try:
         raise FileNotFoundError()
 
     convert_numbers()
-except ValueError:
+except ValueError as e:
     print(
-        'Error: el archivo debe tener al menos dos números '
-        'y estos solo deben contener '
-        'dígitos y punto (para el caso de los decimales). '
-        '\nPor favor, revise el archivo y trate de nuevo.')
+        e)
     sys.exit()
 except FileNotFoundError:
     print(
