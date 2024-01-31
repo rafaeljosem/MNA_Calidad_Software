@@ -5,20 +5,24 @@ in a file
 
 import sys
 import time
+import re
 
 
-def read_file(path: str) -> list:
+def read_file(path: str) -> dict:
     '''
     Reads the file where the numbers are stored
     '''
     with open(path, encoding='utf8', newline='\n') as f:
-        lines = f.read().splitlines()
+        lines = re.sub(r'[^0-9A-Za-z.\n]', ' ', f.read()).split()
 
     if len(lines) < 2:
         raise ValueError
 
-    lines = [float(n) for n in lines]
-    return lines
+    valid_lines = [float(n) for n in lines if is_number(n)]
+    return {
+        'original': lines,
+        'valid': valid_lines
+    }
 
 
 def calculate_mean(numbers: list) -> float:
@@ -34,6 +38,17 @@ def calculate_mean(numbers: list) -> float:
         total += float(n)
 
     return total/size
+
+
+def is_number(s: str) -> bool:
+    '''
+    Checks if a string is a number
+    '''
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
 
 
 def calculate_median(numbers: list) -> float:
@@ -73,12 +88,15 @@ def calculate_variance(numbers: list) -> float:
     return total/size
 
 
-def calculate_mode(numbers: list) -> float:
+def calculate_mode(numbers: list) -> list | None:
     '''
     Calcualtes the mode from a list of numbers
     '''
     count = {n: numbers.count(n) for n in set(numbers)}
     max_count = max(count.values())
+
+    if max_count == 1:
+        return None
 
     mode = [n for n in count if count[n] == max_count]
 
@@ -94,35 +112,74 @@ def write_results(results: str) -> None:
         f.close()
 
 
+def tabulate_results(columns: str, row_labels: str, data: list) -> str:
+    '''
+    Format the results into a table
+    '''
+    # Transpose the data
+    data = list(zip(*data))
+
+    table = '\nStatistics Result\n'
+
+    line = "+" + "+".join(["-" * 15 for _ in columns]) + "+"
+    header_line = "+" + "+".join(["=" * 15 for _ in columns]) + "+"
+
+    table += header_line + '\n'
+    table += f"|{'':<18}" + "|".join(f"{col:^12}" for col in columns) + "|\n"
+
+    table += line + '\n'
+
+    for i, label in enumerate(row_labels):
+        row_data = data[i] if i < len(
+            data) else ["" for _ in range(len(columns))]
+
+        row = f"|{label:<18}" + \
+            "|".join(f"{value:^12}" for value in row_data) + '|\n'
+        table += row + line + "\n"
+
+    return table
+
+
 def calculate_statistics():
     '''
     Call helper functions to calculate the statistics
     and then print the results on screen
     '''
-
-    numbers = read_file(sys.argv[1])
-
     start_time = time.time()
 
-    mean = calculate_mean(numbers)
-    median = calculate_median(numbers)
-    mode = calculate_mode(numbers)
-    variance = calculate_variance(numbers)
+    results = []
+
+    for i in range(1, len(sys.argv)):
+
+        numbers = read_file(sys.argv[i])
+
+        mean = calculate_mean(numbers['valid'])
+        median = calculate_median(numbers['valid'])
+        mode = calculate_mode(numbers['valid'])
+        variance = calculate_variance(numbers['valid'])
+        stddev = variance**0.5
+
+        results.append([
+            len(numbers['original']),
+            len(numbers['valid']),
+            f'{mean:.5}',
+            f'{median:.5}',
+            ', '.join(map(str, mode)) if mode is not None else 'N/A',
+            f'{variance:.5}',
+            f'{stddev:.5}',])
 
     end_time = time.time()
     elapsed_time = end_time - start_time
 
-    results = f'''
-    Mean: {mean}
-    Median: {median}
-    Mode: {mode}
-    Variance: {variance}
-    Std. Dev (population): {variance**0.5}
+    column_names = sys.argv[1:]
+    row_names = ['Total', 'Valid', 'Mean',
+                 'Median', 'Mode', 'Variance', 'Std. Dev.']
 
-    Total time: {elapsed_time: .2f} seconds
-   '''
-    write_results(results)
-    print(results)
+    output = (tabulate_results(column_names, row_names, results) +
+              '\n' + f'Total time: {elapsed_time: .2f} seconds')
+
+    print(output)
+    write_results(output)
 
 
 try:
