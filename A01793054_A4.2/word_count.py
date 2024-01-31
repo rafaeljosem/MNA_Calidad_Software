@@ -11,7 +11,7 @@ def read_file(path: str) -> str:
     Reads the file where the numbers are stored
     '''
     with open(path, encoding='utf8', newline='\n') as f:
-        lines = re.sub(r'[^a-zA-Z0-9 ]', '', f.read().lower()).split()
+        lines = re.sub(r'[^a-zA-Z0-9 \n]', '', f.read().lower()).split()
 
     if len(lines) < 1:
         raise ValueError
@@ -28,26 +28,44 @@ def write_results(results: str) -> None:
         f.close()
 
 
+def tabulate_results(data: dict) -> str:
+
+    output = "{:<15} {:<10}\n".format('Word', 'Count')
+    for word, count in data.items():
+        output += "{:<15} {:<10}\n".format(word, count)
+    return output
+
+
 def count_words() -> None:
     '''
     Counts the number of unique words in a text file
     '''
 
     start_time = time.time()
-    words = read_file(sys.argv[1])
-    unique_words = set(words)
+    output = ''
 
-    word_count = {w: words.count(w) for w in unique_words}
+    for i in range(1, len(sys.argv)):
+
+        words = read_file(sys.argv[i])
+        unique_words = set(words)
+
+        word_count = {w: words.count(w) for w in unique_words}
+        word_count_sorted = dict(sorted(word_count.items(),
+                                        key=lambda word: word[1],
+                                        reverse=True))
+        output += f'\n========== Results for {sys.argv[i]} ==========\n\n' + \
+            tabulate_results(word_count_sorted)
 
     end_time = time.time()
-
     elapsed_time = end_time - start_time
 
-    results = (f'\nWord count: {word_count}\n\n'
-               f'Elapsed time: {elapsed_time: .2f} seconds\n')
+    output += f'\nElapsed time: {elapsed_time: .2f} seconds\n'
 
-    write_results(results)
-    print(results)
+    print(output)
+    write_results(output)
+
+    # write_results(results)
+    # print(results)
 
 
 try:
