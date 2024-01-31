@@ -29,10 +29,13 @@ def write_results(results: str) -> None:
 
 
 def tabulate_results(data: dict) -> str:
+    '''
+    Format the results as a table
+    '''
 
-    output = "{:<15} {:<10}\n".format('Word', 'Count')
+    output = f"{'Word':<15} {'Count':<10}\n"
     for word, count in data.items():
-        output += "{:<15} {:<10}\n".format(word, count)
+        output += f"{word:<15} {count:<10}\n" "{:<15} {:<10}\n"
     return output
 
 
