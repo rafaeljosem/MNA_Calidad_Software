@@ -35,7 +35,7 @@ def tabulate_results(data: dict) -> str:
 
     output = f"{'Word':<15} {'Count':<10}\n"
     for word, count in data.items():
-        output += f"{word:<15} {count:<10}\n" "{:<15} {:<10}\n"
+        output += f"{word:<15} {count:<10}\n"
     return output
 
 
