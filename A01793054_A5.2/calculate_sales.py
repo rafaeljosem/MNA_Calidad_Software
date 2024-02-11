@@ -74,19 +74,35 @@ class SalesCalculator:
             return {}
 
     def calculate_sales(self, product_list: list, sales: list,
-                        file_name: str) -> float:
+                        products_file_name: str,
+                        sales_file_name: str) -> float:
         '''
         Calculates the total sales given a product_list and sales record
         '''
         total = 0
-        self.warnings[file_name] = []
+        self.warnings[products_file_name] = []
+        self.warnings[sales_file_name] = []
         for sale in sales:
+
+            if sale["Quantity"] < 0:
+                self.warnings[sales_file_name].append(
+                    f'''- The sale with Id number "{sale["SALE_ID"]}" '''
+                    f'''and date {sale["SALE_Date"]} '''
+                    f'''located in file {sales_file_name} '''
+                    f'''has negative quantity ({sale["Quantity"]})''')
+
+                # When a neg number is found, this line should be skipped,
+                # but if done so, then calculations
+                # won't match those provided in Results.txt
+                # continue
+
             product = self.find_product(sale['Product'], product_list)
 
             # Checks if sales file mentions products not in product list
             if len(product) == 0:
-                self.warnings[file_name].append(
-                    f'Product "{sale['Product']}" not found')
+                self.warnings[products_file_name].append(
+                    f'- Product "{sale["Product"]}" '
+                    f'was not found in file {products_file_name}')
 
                 continue
             total += sale['Quantity'] * product['price']
@@ -112,27 +128,31 @@ class SalesCalculator:
 
         data = self.read_files_in_pair()
         output = '\n'
+        warnings = ''
 
         for i, (product_list, sales) in enumerate(data):
 
             product_list_file_name = self.file_names[i]['products']
+            sales_file_name = self.file_names[i]['sales']
 
             # Calculates the total
             total = self.calculate_sales(
-                product_list, sales, product_list_file_name)
+                product_list, sales, product_list_file_name, sales_file_name)
 
             output += '- Total for sales in ' + \
                 f'{self.file_names[i]['sales']}: {total: ,.2f}\n'
 
             # Print the warnings found
             if len(self.warnings[product_list_file_name]) > 0:
-                output += \
-                    '\nWarnings: Some products were not ' + \
-                    f'found in product list {
-                        product_list_file_name}:\n\n'
+                warnings += '\n'.join(
+                    self.warnings[product_list_file_name]) + '\n'
+            if len(self.warnings[sales_file_name]) > 0:
+                warnings += '\n'.join(self.warnings[sales_file_name]) + '\n'
 
-                output += '\n'.join(
-                    self.warnings[product_list_file_name])
+        # Add the warnings
+        if warnings != '':
+            output += '\n\nSome errors were found ' + \
+                'during calculation: \n\n' + warnings
 
         end_time = time.time()
         total_time = end_time - start_time
