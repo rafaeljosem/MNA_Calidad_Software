@@ -85,15 +85,17 @@ class SalesCalculator:
         for sale in sales:
 
             if sale["Quantity"] < 0:
+
+                # When a neg number is found, this line should be skipped,
+                # but if done so, then calculations
+                # won't match those provided in Results.txt
+
                 self.warnings[sales_file_name].append(
                     f'''- The sale with Id number "{sale["SALE_ID"]}" '''
                     f'''and date {sale["SALE_Date"]} '''
                     f'''located in file {sales_file_name} '''
                     f'''has negative quantity ({sale["Quantity"]})''')
 
-                # When a neg number is found, this line should be skipped,
-                # but if done so, then calculations
-                # won't match those provided in Results.txt
                 # continue
 
             product = self.find_product(sale['Product'], product_list)
