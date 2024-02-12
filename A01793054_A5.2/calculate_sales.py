@@ -24,12 +24,14 @@ class SalesCalculator:
         '''
         Reads a json file
         '''
+
+        data = []
         try:
             with open(path, encoding='utf8') as f:
                 data = json.load(f)
                 f.close()
         except FileNotFoundError:
-            print(f'Error: The file {path} could not be found.')
+            print(f'\nError: The file {path} could not be found.')
 
         return data
 
