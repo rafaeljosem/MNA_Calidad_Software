@@ -46,14 +46,6 @@ class HotelController:
         '''
         return self.db.get_records('hotels')
 
-    def to_dict(self, entity: object) -> dict:
-        '''
-        Turns an object into json by
-        reading its attributes
-        '''
-        return entity.__dict__
-        # attrs = [attr for attr in dir(entity) if not attr.startswith('__')]
-
     def find_by_name(self, name: str) -> Hotel | None:
         '''
         Searches a hotel by name.
