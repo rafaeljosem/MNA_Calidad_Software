@@ -18,6 +18,7 @@ class Database:
         'reservations': 'reservations'
     }
 
+    # Cache for fast access
     cached_data = {
         'customers': [],
         'hotels': [],
@@ -65,19 +66,21 @@ class Database:
         Adds new record to database
         '''
         try:
+
+            if len(self.cached_data[table]) == 0:
+                self.read(table)
+
+                # Get next id
+            next_id = self.get_next_id(table)
+            entity.set_id(next_id)
+
+            # Store the data
+            data = self.to_dict(entity)
+            self.cached_data[table].append(data)
             with open(f'db/{self.TABLES[table]}.json',
                       encoding='utf8', mode='w') as f:
                 # Check if db is loaded
-                if len(self.cached_data[table]) == 0:
-                    self.read(table)
 
-                # Get next id
-                next_id = self.get_next_id(table)
-                entity.set_id(next_id)
-
-                # Store the data
-                data = self.to_dict(entity)
-                self.cached_data[table].append(data)
                 json.dump(self.cached_data[table], f)
 
         except TypeError:
@@ -161,7 +164,6 @@ class Database:
         sorted_records = sorted(
             self.cached_data[table], key=lambda x: x['id'], reverse=True)
 
-        print(sorted_records)
         return sorted_records[0]['id'] + 1
 
     def get_records(self, table: str) -> list:
