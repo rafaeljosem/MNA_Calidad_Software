@@ -124,7 +124,7 @@ class Database:
 
         return result
 
-    def update(self, entity: object, table: str) -> bool:
+    def update(self, table: str) -> bool:
         '''
         Updates a record
         '''
