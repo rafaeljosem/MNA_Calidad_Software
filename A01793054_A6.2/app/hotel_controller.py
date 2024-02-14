@@ -34,6 +34,12 @@ class HotelController:
 
         return False
 
+    def update_hotel(self, hotel: Hotel) -> bool:
+        '''
+        Updates a hotel
+        '''
+        return self.db.update(hotel, self.TABLE_NAME)
+
     def delete_hotel(self, hotel: Hotel) -> bool:
         '''
         Deletes a hotel
