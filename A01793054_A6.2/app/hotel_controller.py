@@ -61,10 +61,20 @@ class HotelController:
         '''
 
         data = self.db.find_by(self.TABLE_NAME, 'name', name)
+        return None if data is None else self.hydrate(data)
 
-        if data is None:
-            return None
+    def find_by_id(self, hotel_id: int) -> Hotel | None:
+        '''
+        Finds a hotel by id
+        '''
+        data = self.db.find_by(self.TABLE_NAME, 'id', hotel_id)
+        return None if data is None else self.hydrate(data)
 
+    def hydrate(self, data: dict) -> Hotel:
+        '''
+        Hydrates an object with data
+        obtained from database
+        '''
         return Hotel(hotel_id=data['id'], name=data['name'])
 
     def drop_table(self) -> None:
