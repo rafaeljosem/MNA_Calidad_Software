@@ -70,18 +70,20 @@ class Database:
             if len(self.cached_data[table]) == 0:
                 self.read(table)
 
-                # Get next id
+            # Get next id
             next_id = self.get_next_id(table)
             entity.set_id(next_id)
 
             # Store the data
             data = self.to_dict(entity)
             self.cached_data[table].append(data)
-            with open(f'db/{self.TABLES[table]}.json',
-                      encoding='utf8', mode='w') as f:
-                # Check if db is loaded
+            result = self.flush(table)
 
-                json.dump(self.cached_data[table], f)
+            if not result:
+                # Rollback
+                self.cached_data[table].pop(len(self.cached_data[table]) - 1)
+                entity.set_id(None)
+            return result
 
         except TypeError:
 
@@ -93,17 +95,6 @@ class Database:
                 f'Unable to serialize the object {table} '
                 f'after adding entity {entity}')
             return False
-
-        except FileNotFoundError:
-
-            # Rollback
-            self.cached_data[table].pop(len(self.cached_data[table]) - 1)
-            entity.set_id(None)
-
-            print(f'Unable to find the database for {table}')
-            return False
-
-        return True
 
     def delete(self, entity: object, table: str) -> bool:
         '''
@@ -125,32 +116,19 @@ class Database:
             print(f'Record {entity} could not be found in database')
             return False
 
-        try:
-            with open(f'db/{self.TABLES[table]}.json',
-                      encoding='utf8', mode='w') as f:
-                json.dump(self.cached_data[table], f)
+        result = self.flush(table)
 
-        except TypeError:
-            # rollback
+        # rollback
+        if not result:
             self.cached_data[table].append(deleted_record)
-            print(
-                f'Unable to serialize the object {table} '
-                f'after adding entity {entity}')
-            return False
 
-        except FileNotFoundError:
-            # rollback
-            self.cached_data[table].append(deleted_record)
-            print(f'Unable to find the database for {table}')
-            return False
+        return result
 
-        return True
-
-    def update(self, entity: dict, table: str) -> bool:
+    def update(self, entity: object, table: str) -> bool:
         '''
         Updates a record
         '''
-        pass
+        return self.flush(table)
 
     def get_next_id(self, table: str) -> int:
         '''
@@ -181,7 +159,6 @@ class Database:
         reading its attributes
         '''
         return entity.__dict__
-        # attrs = [attr for attr in dir(entity) if not attr.startswith('__')]
 
     def find_by(self, table: str, key: str, value: str) -> dict | None:
         '''
@@ -193,6 +170,23 @@ class Database:
 
         return next((entity for entity in self.cached_data[table]
                      if entity[key].lower() == value.lower()), None)
+
+    def flush(self, table: str) -> None:
+        '''
+        Stores data in the database
+        '''
+
+        try:
+            with open(f'db/{self.TABLES[table]}.json',
+                      encoding='utf8', mode='w') as f:
+                json.dump(self.cached_data[table], f)
+
+        except FileNotFoundError:
+            # rollback
+            print(f'Unable to find the database for {table}')
+            return False
+
+        return True
 
     def drop_table(self, table) -> bool:
         '''
