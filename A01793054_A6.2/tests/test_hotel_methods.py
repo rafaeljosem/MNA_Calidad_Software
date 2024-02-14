@@ -70,6 +70,66 @@ class TestHotelMethods (unittest.TestCase):
             hotel = self.controller.create_hotel(f'{hotel_name} {i + 1}')
             self.assertEqual(hotel.get_id(), i + 1)
 
+    def test_it_modifies_a_hotel(self):
+        '''
+        Test if modified hotel info is stored to db
+        '''
+        # 1. Arrange
+
+        hotel_name = 'Marriot'
+        new_name = 'Hilton'
+        hotel = self.controller.create_hotel(hotel_name)
+        hotel.set_name(new_name)
+
+        # 2. Act
+        result = self.controller.update_hotel(hotel)
+
+        with open('db/hotels.json', mode='r', encoding='utf8') as f:
+            hotel_data = json.load(f)
+
+        # 3. Assert
+
+        self.assertTrue(result)
+        self.assertEqual(new_name, hotel_data[0]['name'])
+
+    def test_it_finds_hotel_by_id(self):
+        '''
+        Tests it finds a hotel by id
+        '''
+        # 1. Arrange
+        hotel_base_name = "Marriot"
+        hotels = []
+        for i in range(3):
+            hotel_name = hotel_base_name + f' {i + 1}'
+            self.controller.create_hotel(hotel_name)
+            hotels.append({'id': i+1, 'name': hotel_name})
+
+        # 2. Act and Assert
+
+        for i, data in enumerate(hotels):
+            hotel = self.controller.find_by_id(i + 1)
+            self.assertEqual(data['id'], hotel.get_id())
+            self.assertEqual(data['name'], hotel.get_name())
+
+    def test_it_finds_hotel_by_name(self):
+        '''
+        Tests it finds a hotel by id
+        '''
+        # 1. Arrange
+        hotel_base_name = "Marriot"
+        hotels = []
+        for i in range(3):
+            hotel_name = hotel_base_name + f' {i + 1}'
+            self.controller.create_hotel(hotel_name)
+            hotels.append({'id': i+1, 'name': hotel_name})
+
+        # 2. Act and Assert
+
+        for i, data in enumerate(hotels):
+            hotel = self.controller.find_by_name(data['name'])
+            self.assertEqual(data['id'], hotel.get_id())
+            self.assertEqual(data['name'], hotel.get_name())
+
     def tearDown(self):
         '''
         Clean up database
