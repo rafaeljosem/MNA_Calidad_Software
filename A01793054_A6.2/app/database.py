@@ -160,7 +160,7 @@ class Database:
         '''
         return entity.__dict__
 
-    def find_by(self, table: str, key: str, value: str) -> dict | None:
+    def find_by(self, table: str, key: str, value: str | int) -> dict | None:
         '''
         Searches a hotel by name.
         If found, returns a dict, else returns None
@@ -169,7 +169,7 @@ class Database:
         self.read(table)
 
         return next((entity for entity in self.cached_data[table]
-                     if entity[key].lower() == value.lower()), None)
+                     if entity[key] == value), None)
 
     def flush(self, table: str) -> None:
         '''
