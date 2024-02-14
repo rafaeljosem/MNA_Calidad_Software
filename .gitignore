@@ -4,3 +4,4 @@ __pycache__
 db
 *.zip
 .coverage
+.pytest_cache
