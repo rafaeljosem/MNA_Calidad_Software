@@ -13,7 +13,7 @@ from app.customer import Customer
 from definitions import ROOT_DIR
 
 
-class TestHotelMethods (unittest.TestCase):
+class TestReservationController (unittest.TestCase):
 
     '''
     Class for testing reservation controller methods
