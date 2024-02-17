@@ -46,7 +46,7 @@ class TestHotelMethods (unittest.TestCase):
         hotel = self.controller.create_hotel(hotel_name)
         hotel_data = {}
 
-        with open('db/hotels.json', mode='r', encoding='utf8') as f:
+        with open(self.file_path, mode='r', encoding='utf8') as f:
             hotel_data = json.load(f)
 
         self.assertIsInstance(hotel, Hotel)
@@ -60,7 +60,7 @@ class TestHotelMethods (unittest.TestCase):
         # 1. Arrange
         hotel = self.controller.create_hotel('Marriott')
         # Let's confirm that our db is not empty
-        with open('db/hotels.json', mode='r', encoding='utf8') as f:
+        with open(self.file_path, mode='r', encoding='utf8') as f:
             hotel_data = json.load(f)
             self.assertEqual(1, len(hotel_data))
 
@@ -70,7 +70,7 @@ class TestHotelMethods (unittest.TestCase):
         # 3. Assert
         self.assertTrue(result)
 
-        with open('db/hotels.json', mode='r', encoding='utf8') as f:
+        with open(self.file_path, mode='r', encoding='utf8') as f:
             hotel_data = json.load(f)
             self.assertEqual(0, len(hotel_data))
 
