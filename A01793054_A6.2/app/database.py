@@ -5,6 +5,7 @@ creating CRUD operations
 
 import json
 import os
+from definitions import ROOT_DIR
 
 
 class Database:
@@ -18,6 +19,8 @@ class Database:
         'reservations': 'reservations'
     }
 
+    folder_path = os.path.join(ROOT_DIR, 'db')
+
     # Cache for fast access
     cached_data = {
         'customers': [],
@@ -30,11 +33,10 @@ class Database:
         Initializes the database
         '''
         for table in self.TABLES.values():
-            folder_path = 'db'
-            file_path = os.path.join('db', f'{table}.json')
+            file_path = os.path.join(self.folder_path, f'{table}.json')
 
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
+            if not os.path.exists(self.folder_path):
+                os.makedirs(self.folder_path)
             with open(file_path, mode='a', encoding='utf8'):
                 pass
 
@@ -42,7 +44,8 @@ class Database:
         '''
         Reads a table and returns the data
         '''
-        file = f'db/{self.TABLES[table]}.json'
+        file = os.path.join(
+            self.folder_path, f'{table}.json')
         try:
             if os.stat(file).st_size == 0:
                 self.cached_data[table] = []
@@ -175,9 +178,10 @@ class Database:
         '''
         Stores data in the database
         '''
-
+        file_path = os.path.join(
+            self.folder_path, self.TABLES[table]) + '.json'
         try:
-            with open(f'db/{self.TABLES[table]}.json',
+            with open(file_path,
                       encoding='utf8', mode='w') as f:
                 json.dump(self.cached_data[table], f)
 
@@ -193,11 +197,9 @@ class Database:
         Drops a table from database
         '''
 
-        folder_path = 'db'
-        file_path = os.path.join('db', f'{table}.json')
+        file_path = os.path.join(self.folder_path, f'{table}.json')
 
-        if not os.path.exists(folder_path):
-            print(f'{file_path} does not exists')
+        if not os.path.exists(file_path):
             return False
 
         with open(file_path, 'w', encoding='utf8'):
