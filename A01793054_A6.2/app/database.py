@@ -68,36 +68,24 @@ class Database:
         '''
         Adds new record to database
         '''
-        try:
 
-            if len(self.cached_data[table]) == 0:
-                self.read(table)
+        if len(self.cached_data[table]) == 0:
+            self.read(table)
 
-            # Get next id
-            next_id = self.get_next_id(table)
-            entity.set_id(next_id)
+        # Get next id
+        next_id = self.get_next_id(table)
+        entity.set_id(next_id)
 
-            # Store the data
-            data = self.to_dict(entity)
-            self.cached_data[table].append(data)
-            result = self.flush(table)
+        # Store the data
+        data = self.to_dict(entity)
+        self.cached_data[table].append(data)
+        result = self.flush(table)
 
-            if not result:
-                # Rollback
-                self.cached_data[table].pop(len(self.cached_data[table]) - 1)
-                entity.set_id(None)
-            return result
-
-        except TypeError:
-
+        if not result:
             # Rollback
             self.cached_data[table].pop(len(self.cached_data[table]) - 1)
             entity.set_id(None)
-
-            print(
-                f'Unable to serialize the object {table} '
-                f'after adding entity {entity}')
-            return False
+        return result
 
     def delete(self, entity: object, table: str) -> bool:
         '''
