@@ -95,7 +95,7 @@ class TestHotelMethods (unittest.TestCase):
         hotel.set_name(new_name)
 
         # 2. Act
-        result = self.controller.update()
+        result = self.controller.update_hotel()
 
         with open('db/hotels.json', mode='r', encoding='utf8') as f:
             hotel_data = json.load(f)

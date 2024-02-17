@@ -34,7 +34,7 @@ class HotelController:
 
         return False
 
-    def update(self) -> bool:
+    def update_hotel(self) -> bool:
         '''
         Updates a hotel
         '''
