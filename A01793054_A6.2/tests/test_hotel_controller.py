@@ -19,7 +19,7 @@ def file_exists(directory, filename):
     return os.path.exists(file_path)
 
 
-class TestHotelMethods (unittest.TestCase):
+class TestHotelController (unittest.TestCase):
 
     '''
     Class for testing hotel methods
