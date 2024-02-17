@@ -4,9 +4,19 @@ Test suite for hotels
 
 import unittest
 import json
+import os
 from app.hotel_controller import HotelController
 from app.database import Database
 from app.hotel import Hotel
+from definitions import ROOT_DIR
+
+
+def file_exists(directory, filename):
+    '''
+    Method for asserting if a file exists
+    '''
+    file_path = os.path.join(directory, filename)
+    return os.path.exists(file_path)
 
 
 class TestHotelMethods (unittest.TestCase):
@@ -17,6 +27,9 @@ class TestHotelMethods (unittest.TestCase):
 
     db = None
     controller = None
+
+    folder_path = os.path.join(ROOT_DIR, 'db')
+    file_path = os.path.join(folder_path, 'hotels.json')
 
     def setUp(self):
         '''
@@ -110,6 +123,71 @@ class TestHotelMethods (unittest.TestCase):
             hotel = self.controller.find_by_id(i + 1)
             self.assertEqual(data['id'], hotel.get_id())
             self.assertEqual(data['name'], hotel.get_name())
+
+    def test_it_creates_file_if_not_exists(self):
+        '''
+        Test if file is created if it doesn't exist
+        '''
+        # 1. Arrange
+        if os.path.exists(self.folder_path):
+            os.remove(self.file_path)
+        # 2. Act
+        self.controller.create_hotel('Marriott')
+
+        # 3 Assert
+        self.assertTrue(file_exists(self.folder_path, 'hotels.json'))
+
+    def test_it_drops_table(self):
+        '''
+        Test if it drops the hotel table from db
+        '''
+
+        # 1. Arrange
+        if not os.path.exists(self.folder_path):
+            os.makedirs(self.folder_path)
+        with open(self.file_path, mode='a', encoding='utf8') as f:
+            f.write('{}')
+
+        # 2. Act
+        result = self.controller.drop_table()
+
+        # 3. Assert
+        self.assertTrue(os.stat(self.file_path).st_size == 0)
+        self.assertTrue(result)
+
+    def test_it_does_not_drop_table(self):
+        '''
+        Test it returns false if a dir does not exist
+        '''
+        # 1. Arrange
+
+        if os.path.exists(self.folder_path):
+            try:
+                os.remove(self.file_path)
+            except OSError as e:
+                print(f"Failed with: {e.strerror}")
+
+        # 2. Act
+        result = self.controller.drop_table()
+
+        # 3. Assert
+        self.assertFalse(result)
+
+    def test_it_displays_hotel_info_correctly(self):
+        '''
+        Test if hotel info is displayed correctly
+        '''
+        # Arrange
+        hotel = Hotel(1, 'Marriott')
+
+        expected = f'\nHotel Id: {hotel.get_id()}' \
+            f'\nHotel Name: {hotel.get_name()}'
+
+        # Act
+        result = self.controller.display_hotel_info(hotel)
+
+        # Assert
+        self.assertEqual(expected, result)
 
     def test_it_finds_hotel_by_name(self):
         '''

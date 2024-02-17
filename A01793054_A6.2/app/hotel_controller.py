@@ -75,8 +75,15 @@ class HotelController:
         '''
         return Hotel(hotel_id=data['id'], name=data['name'])
 
-    def drop_table(self) -> None:
+    def display_hotel_info(self, hotel: Hotel) -> str:
+        '''
+        Displays a hotel information
+        '''
+        return f'\nHotel Id: {hotel.get_id()}' \
+            f'\nHotel Name: {hotel.get_name()}'
+
+    def drop_table(self) -> True:
         '''
         Drops hotel table from db
         '''
-        self.db.drop_table(self.TABLE_NAME)
+        return self.db.drop_table(self.TABLE_NAME)
