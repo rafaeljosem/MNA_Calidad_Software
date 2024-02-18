@@ -2,8 +2,7 @@
 Hotel class
 '''
 
-# import json
-# from hotel_controller import HotelController
+from app.customer import Customer
 
 
 class Hotel:
@@ -13,6 +12,7 @@ class Hotel:
 
     name = ''
     id = None
+    reservations = []
 
     def __init__(self, hotel_id: int = None, name: str = ''):
         self.name = name
@@ -43,3 +43,13 @@ class Hotel:
         Gets the name of the hotel
         '''
         return self.id
+
+    def reserve_room(self, customer: Customer):
+        '''
+        Reserves a room
+        '''
+        # pylint: disable=import-outside-toplevel
+        from app.reservation import Reservation
+        reservation = Reservation(hotel=self, customer=customer)
+        self.reservations.append(reservation)
+        return reservation
