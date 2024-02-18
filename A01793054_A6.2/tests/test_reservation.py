@@ -14,9 +14,6 @@ class TestReservation (unittest.TestCase):
     Class for testing reservation methods
     '''
 
-    db = None
-    controller = None
-
     def test_sets_reservation_information(self):
         '''
         test if the create method correctly creates a new reservation
