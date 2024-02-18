@@ -16,7 +16,8 @@ class Database:
     TABLES = {
         'customers': 'customers',
         'hotels': 'hotels',
-        'reservations': 'reservations'
+        'reservations': 'reservations',
+        'test': 'test'
     }
 
     folder_path = os.path.join(ROOT_DIR, 'db')
@@ -25,7 +26,8 @@ class Database:
     cached_data = {
         'customers': [],
         'hotels': [],
-        'reservations': []
+        'reservations': [],
+        'test': []
     }
 
     def init(self) -> None:

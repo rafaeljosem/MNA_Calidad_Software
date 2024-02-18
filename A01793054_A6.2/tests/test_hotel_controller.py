@@ -74,15 +74,6 @@ class TestHotelController (unittest.TestCase):
             hotel_data = json.load(f)
             self.assertEqual(0, len(hotel_data))
 
-    def test_assigns_correct_id(self):
-        '''
-        Test if id is created correctly
-        '''
-        hotel_name = "Marriot"
-        for i in range(3):
-            hotel = self.controller.create_hotel(f'{hotel_name} {i + 1}')
-            self.assertEqual(hotel.get_id(), i + 1)
-
     def test_it_modifies_a_hotel(self):
         '''
         Test if modified hotel info is stored to db
@@ -104,74 +95,6 @@ class TestHotelController (unittest.TestCase):
 
         self.assertTrue(result)
         self.assertEqual(new_name, hotel_data[0]['name'])
-
-    def test_it_finds_hotel_by_id(self):
-        '''
-        Tests it finds a hotel by id
-        '''
-        # 1. Arrange
-        hotel_base_name = "Marriot"
-        hotels = []
-        for i in range(3):
-            hotel_name = hotel_base_name + f' {i + 1}'
-            self.controller.create_hotel(hotel_name)
-            hotels.append({'id': i+1, 'name': hotel_name})
-
-        # 2. Act and Assert
-
-        for i, data in enumerate(hotels):
-            hotel = self.controller.find_by_id(i + 1)
-            self.assertEqual(data['id'], hotel.get_id())
-            self.assertEqual(data['name'], hotel.get_name())
-
-    def test_it_creates_file_if_not_exists(self):
-        '''
-        Test if file is created if it doesn't exist
-        '''
-        # 1. Arrange
-        if os.path.exists(self.folder_path):
-            os.remove(self.file_path)
-        # 2. Act
-        self.controller.create_hotel('Marriott')
-
-        # 3 Assert
-        self.assertTrue(file_exists(self.folder_path, 'hotels.json'))
-
-    def test_it_drops_table(self):
-        '''
-        Test if it drops the hotel table from db
-        '''
-
-        # 1. Arrange
-        if not os.path.exists(self.folder_path):
-            os.makedirs(self.folder_path)
-        with open(self.file_path, mode='a', encoding='utf8') as f:
-            f.write('{}')
-
-        # 2. Act
-        result = self.controller.drop_table()
-
-        # 3. Assert
-        self.assertTrue(os.stat(self.file_path).st_size == 0)
-        self.assertTrue(result)
-
-    def test_it_does_not_drop_table(self):
-        '''
-        Test it returns false if a dir does not exist
-        '''
-        # 1. Arrange
-
-        if os.path.exists(self.folder_path):
-            try:
-                os.remove(self.file_path)
-            except OSError as e:
-                print(f"Failed with: {e.strerror}")
-
-        # 2. Act
-        result = self.controller.drop_table()
-
-        # 3. Assert
-        self.assertFalse(result)
 
     def test_it_displays_hotel_info_correctly(self):
         '''
