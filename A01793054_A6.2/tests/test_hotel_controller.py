@@ -53,6 +53,21 @@ class TestHotelController (unittest.TestCase):
         self.assertEqual(hotel.get_id(), 1)
         self.assertListEqual(hotel_data, [{'name': hotel_name, 'id': 1}])
 
+    def test_it_does_not_create_hotel_if_exists(self):
+        '''
+        Test same hotel is not created twice
+        '''
+        # 1. Arrange
+        hotel_name = 'Marriot'
+        self.controller.create_hotel(hotel_name)
+
+        # 2. Act
+        result = self.controller.create_hotel(hotel_name)
+
+        # 3. Assert
+
+        self.assertFalse(result)
+
     def test_delete_hotel(self):
         '''
         Test the delete hotel method

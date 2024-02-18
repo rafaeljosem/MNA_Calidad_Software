@@ -22,6 +22,12 @@ class CustomerController:
         '''
         Method for creating a new customer
         '''
+        search_result = self.db.find_by(
+            self.TABLE_NAME, 'name', customer_name)
+
+        if (search_result and
+                search_result['name'] == customer_name):
+            return False
 
         customer = Customer(name=customer_name)
 

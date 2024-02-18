@@ -27,6 +27,12 @@ class ReservationController:
         '''
 
         reservation = Reservation(hotel=hotel, customer=customer)
+        search_result = self.db.find_by(
+            self.TABLE_NAME, 'customer_id', customer.get_id())
+
+        if (search_result and
+                search_result['customer_id'] == customer.get_id()):
+            return False
 
         if self.db.create(reservation, self.TABLE_NAME):
             return reservation

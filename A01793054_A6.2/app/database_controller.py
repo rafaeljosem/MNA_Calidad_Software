@@ -176,7 +176,6 @@ class Database:
                 json.dump(self.cached_data[table], f)
 
         except FileNotFoundError:
-            # rollback
             print(f'Unable to find the database for {table}')
             return False
 

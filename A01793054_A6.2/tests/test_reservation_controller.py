@@ -85,6 +85,24 @@ class TestReservationController (unittest.TestCase):
             reservation_data = json.load(f)
             self.assertEqual(0, len(reservation_data))
 
+    def test_it_does_not_reserve_room_twice_for_same_customer_same_hotel(self):
+        '''
+        Test if a room is reserve correctly
+        '''
+
+        # 1. Arrange
+        hotel_name = 'Marriott'
+        hotel_id = 1
+        hotel = Hotel(hotel_id=hotel_id, name=hotel_name)
+        customer = Customer(1, 'John Smith')
+        self.controller.create_reservation(hotel, customer)
+
+        # Act
+        result = self.controller.create_reservation(hotel, customer)
+
+        # Assert
+        self.assertFalse(result)
+
     def tearDown(self):
         '''
         Clean up database

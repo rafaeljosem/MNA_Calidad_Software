@@ -192,6 +192,20 @@ class TestDatabaseController (unittest.TestCase):
 
         self.assertEqual(1, len(records))
 
+    def test_it_does_not_try_to_delete_unexisting_record(self):
+        '''
+        Test it does not try to delete a record that does not exist
+        '''
+        # Arrange
+        dummy2 = Dummy(2, 'dummy 2', 2)
+        self.db.create(self.dummy, self.db_tbl_name)
+
+        # Act
+        result = self.db.delete(dummy2, self.db_tbl_name)
+
+        # Assert
+        self.assertFalse(result)
+
     def tearDown(self):
         '''
         Clean up database

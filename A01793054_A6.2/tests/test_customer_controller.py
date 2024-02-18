@@ -53,6 +53,21 @@ class TestCustomerController (unittest.TestCase):
         self.assertEqual(customer.get_id(), 1)
         self.assertListEqual(customer_data, [{'name': customer_name, 'id': 1}])
 
+    def test_it_does_not_create_same_customer_twice(self):
+        '''
+        Test same hotel is not created twice
+        '''
+        # 1. Arrange
+        customer_name = 'John Smith'
+        self.controller.create_customer(customer_name)
+
+        # 2. Act
+        result = self.controller.create_customer(customer_name)
+
+        # 3. Assert
+
+        self.assertFalse(result)
+
     def test_delete_customer(self):
         '''
         Test the delete customer method
