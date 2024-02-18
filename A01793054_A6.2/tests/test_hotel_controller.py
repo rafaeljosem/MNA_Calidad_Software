@@ -88,7 +88,7 @@ class TestHotelController (unittest.TestCase):
         # 2. Act
         result = self.controller.update_hotel()
 
-        with open('db/hotels.json', mode='r', encoding='utf8') as f:
+        with open(self.file_path, mode='r', encoding='utf8') as f:
             hotel_data = json.load(f)
 
         # 3. Assert
