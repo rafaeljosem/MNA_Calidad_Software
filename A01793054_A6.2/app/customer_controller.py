@@ -2,7 +2,7 @@
 Controller for customer class
 '''
 
-from app.database import Database
+from app.database_controller import Database
 from app.customer import Customer
 
 

@@ -6,7 +6,7 @@ import unittest
 import json
 import os
 from app.reservation_controller import ReservationController
-from app.database import Database
+from app.database_controller import Database
 from app.hotel import Hotel
 from app.reservation import Reservation
 from app.customer import Customer

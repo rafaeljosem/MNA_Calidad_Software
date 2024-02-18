@@ -6,7 +6,7 @@ import unittest
 import json
 import os
 from app.hotel_controller import HotelController
-from app.database import Database
+from app.database_controller import Database
 from app.hotel import Hotel
 from definitions import ROOT_DIR
 

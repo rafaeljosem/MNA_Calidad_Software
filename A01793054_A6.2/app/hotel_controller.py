@@ -2,7 +2,7 @@
 Controller for hotel class
 '''
 
-from app.database import Database
+from app.database_controller import Database
 from app.hotel import Hotel
 
 

@@ -6,7 +6,7 @@ import unittest
 import json
 import os
 from app.customer_controller import CustomerController
-from app.database import Database
+from app.database_controller import Database
 from app.customer import Customer
 from definitions import ROOT_DIR
 

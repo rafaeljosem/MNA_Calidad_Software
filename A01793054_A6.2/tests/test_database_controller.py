@@ -5,7 +5,7 @@ Test suite for database
 import unittest
 import json
 import os
-from app.database import Database
+from app.database_controller import Database
 from definitions import ROOT_DIR
 from tests.dummy import Dummy
 

@@ -5,7 +5,7 @@ Reservation Controller class
 from app.hotel import Hotel
 from app.reservation import Reservation
 from app.customer import Customer
-from app.database import Database
+from app.database_controller import Database
 
 
 class ReservationController:
