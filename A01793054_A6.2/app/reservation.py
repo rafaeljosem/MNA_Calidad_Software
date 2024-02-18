@@ -17,8 +17,8 @@ class Reservation:
 
     def __init__(self, reservation_id: int = None,
                  hotel: Hotel = None, customer: Customer = None):
-        self.hotel_id = hotel.get_id()
-        self.customer_id = customer.get_id()
+        self.hotel_id = hotel.get_id() if hotel is not None else None
+        self.customer_id = customer.get_id() if customer is not None else None
         self.id = reservation_id
 
     def set_hotel(self, hotel: Hotel):
@@ -59,10 +59,3 @@ class Reservation:
         Gets the name of the hotel
         '''
         return self.id
-
-    def create_reservation(self, hotel: Hotel, customer: Customer) -> None:
-        '''
-        Creates a reservation
-        '''
-        self.set_customer(customer)
-        self.set_hotel(hotel)
