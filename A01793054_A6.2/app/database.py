@@ -139,7 +139,7 @@ class Database:
         '''
         Get all records in a table
         '''
-        if len(self.cached_data[table] == 0):
+        if len(self.cached_data[self.TABLES[table]]) == 0:
             self.init()
 
         return self.cached_data[table]
